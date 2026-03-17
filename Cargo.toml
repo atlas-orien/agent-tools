@@ -1,9 +1,12 @@
 [package]
 name = "agent-tools"
+description = "agent command"
 version = "0.1.0"
 edition = "2024"
 license = "MIT"
 authors = ["Ancient"]
+repository = "https://github.com/atlas-form/agent-tools.git"
+documentation = "https://docs.rs/agent-tools"
 
 
 [dependencies]

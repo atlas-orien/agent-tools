@@ -13,7 +13,7 @@ Small Rust helpers for running local commands and Codex-powered tools.
 
 ```toml
 [dependencies]
-agent-tools = "0.1"
+agent-tools = "0.1.1"
 ```
 
 ## Run a Command

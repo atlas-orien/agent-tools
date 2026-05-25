@@ -1,6 +1,6 @@
 [package]
 name = "agent-tools"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 description = "Lightweight command and Codex-powered tool helpers for Rust agents"
 license = "MIT"

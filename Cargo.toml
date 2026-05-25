@@ -5,7 +5,7 @@ version = "0.1.0"
 edition = "2024"
 license = "MIT"
 authors = ["Ancient"]
-repository = "https://github.com/atlas-form/agent-tools.git"
+repository = "https://github.com/atlas-orien/agent-tools.git"
 documentation = "https://docs.rs/agent-tools"
 
 

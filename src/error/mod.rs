@@ -37,7 +37,7 @@ impl Error {
             inner: Box::new(ErrorKind::Tools(tools::ToolError::Io(err))),
         }
     }
-    
+
     /// Creates a command failure error associated with tools execution.
     pub fn tool_cmd_failed(code: i32) -> Self {
         Error {

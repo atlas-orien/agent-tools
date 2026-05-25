@@ -15,6 +15,7 @@ pub enum CmdStdin {
     Text(String),
     Bytes(Vec<u8>),
     File(PathBuf),
+    Null,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -137,6 +138,9 @@ fn configure_stdin(cmd: &mut Command, stdin: Option<&CmdStdin>, background: bool
             let file = File::open(path).map_err(Error::tool_io)?;
             cmd.stdin(file);
         }
+        Some(CmdStdin::Null) => {
+            cmd.stdin(Stdio::null());
+        }
         Some(_) => {
             cmd.stdin(Stdio::piped());
         }
@@ -228,7 +232,7 @@ fn write_stdin(child: &mut std::process::Child, stdin_content: Option<&CmdStdin>
     match stdin_content {
         CmdStdin::Text(text) => stdin.write_all(text.as_bytes()).map_err(Error::tool_io)?,
         CmdStdin::Bytes(bytes) => stdin.write_all(bytes).map_err(Error::tool_io)?,
-        CmdStdin::File(_) => {}
+        CmdStdin::File(_) | CmdStdin::Null => {}
     }
 
     stdin.flush().map_err(Error::tool_io)?;
@@ -435,6 +439,26 @@ mod tests {
         let output = result.unwrap();
         assert_eq!(output.exit_code, 0);
         assert_eq!(output.stdout, "hello stdin file");
+        assert!(output.pid.is_none());
+    }
+
+    #[test]
+    fn test_stdin_null() {
+        let req = CmdRequest {
+            program: "cat".to_string(),
+            args: vec![],
+            cwd: None,
+            env: None,
+            timeout_ms: Some(1_000),
+            fail_on_non_zero: false,
+            stdin: Some(CmdStdin::Null),
+            background: false,
+        };
+        let result = CmdTool::run(req);
+        assert!(result.is_ok());
+        let output = result.unwrap();
+        assert_eq!(output.exit_code, 0);
+        assert!(output.stdout.is_empty());
         assert!(output.pid.is_none());
     }
 

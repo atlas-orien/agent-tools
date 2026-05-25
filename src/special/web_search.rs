@@ -30,6 +30,15 @@ impl WebSearchRequest {
     }
 }
 
+pub fn web_search(query: impl Into<String>) -> Result<String> {
+    let output = web_search_output(query)?;
+    Ok(output.stdout.trim().to_string())
+}
+
+pub fn web_search_output(query: impl Into<String>) -> Result<CmdOutput> {
+    WebSearchTool::search(WebSearchRequest::new(query))
+}
+
 impl WebSearchTool {
     pub fn search(req: WebSearchRequest) -> Result<CmdOutput> {
         let workdir = create_isolated_workdir()?;
@@ -94,6 +103,15 @@ mod tests {
         assert!(req.codex_options.model.is_none());
         assert_eq!(req.codex_options.sandbox, Some(SandboxMode::ReadOnly));
         assert!(req.codex_options.cd.is_none());
+    }
+
+    #[test]
+    fn test_web_search_output_uses_simple_query_defaults() {
+        let req = WebSearchRequest::new("macbook pro price");
+
+        assert_eq!(req.query, "macbook pro price");
+        assert!(req.codex_options.search);
+        assert!(req.codex_options.model.is_none());
     }
 
     #[test]

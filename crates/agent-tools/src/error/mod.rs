@@ -1,7 +1,6 @@
 mod tools;
 
-use std::fmt;
-use std::io;
+use std::{fmt, io};
 
 /// Core error struct for the workspace.
 /// This hides the internal details of specific errors (like ToolError).

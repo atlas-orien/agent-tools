@@ -1,6 +1,6 @@
-use crate::error::Result;
-use crate::{CmdOutput, CmdRequest, CmdStdin, CmdTool};
 use std::path::PathBuf;
+
+use crate::{CmdOutput, CmdRequest, CmdStdin, CmdTool, error::Result};
 
 pub struct CodexTool;
 

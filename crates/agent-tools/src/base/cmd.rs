@@ -1,12 +1,16 @@
-use crate::error::{Error, Result};
-use std::collections::HashMap;
-use std::fs::File;
-use std::io::{self, Read, Write};
-use std::path::PathBuf;
-use std::process::{Command, Stdio};
-use std::thread;
-use std::time::Duration;
+use std::{
+    collections::HashMap,
+    fs::File,
+    io::{self, Read, Write},
+    path::PathBuf,
+    process::{Command, Stdio},
+    thread,
+    time::Duration,
+};
+
 use wait_timeout::ChildExt;
+
+use crate::error::{Error, Result};
 
 pub struct CmdTool;
 
@@ -300,9 +304,11 @@ fn build_shell_command(command: &str) -> Command {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use std::io::Write;
+
     use tempfile::NamedTempFile;
+
+    use super::*;
 
     #[test]
     fn test_successful_command() {

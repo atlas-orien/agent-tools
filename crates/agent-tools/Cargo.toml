@@ -1,0 +1,22 @@
+[package]
+name = "agent-tools"
+version = "0.1.1"
+edition.workspace = true
+description.workspace = true
+license.workspace = true
+authors.workspace = true
+readme = "README.md"
+repository.workspace = true
+documentation.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
+include.workspace = true
+
+
+[dependencies]
+thiserror.workspace = true
+wait-timeout.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true

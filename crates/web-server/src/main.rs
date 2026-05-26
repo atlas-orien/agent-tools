@@ -5,8 +5,6 @@ mod routes;
 mod settings;
 mod state;
 
-use clap::Parser;
-
 use crate::{routes::create_routes, settings::Settings, state::AppState};
 
 #[tokio::main]
@@ -18,8 +16,8 @@ async fn main() {
 }
 
 async fn run() -> Result<(), Box<dyn std::error::Error>> {
-    let settings = Settings::parse();
-    let bind = settings.bind.clone();
+    let settings = Settings::load("config/services.toml")?;
+    let bind = format!("0.0.0.0:{}", settings.http.port);
 
     let state = AppState::new(&settings);
     let app = create_routes(state);

@@ -5,7 +5,15 @@ Small HTTP server for `agent-tools`.
 ## Run
 
 ```bash
-cargo run -p tools-server -- --bind 0.0.0.0:18080
+cargo run -p tools-server
+```
+
+Default config file: `config/services.toml`.
+
+Create it from the example:
+
+```bash
+cp config/services.example.toml config/services.toml
 ```
 
 ## Routes
@@ -22,10 +30,4 @@ Web search:
 curl -X POST http://127.0.0.1:18080/tools/web-search \
   -H 'content-type: application/json' \
   -d '{"query":"What is the latest stable Rust version?"}'
-```
-
-External search provider:
-
-```bash
-curl 'http://127.0.0.1:18080/api/external/search?q=latest%20Rust%20release&topic=news&days=30&max_results=6&bypass_cache=false'
 ```

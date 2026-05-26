@@ -1,9 +1,18 @@
-use clap::Parser;
+use serde::Deserialize;
+use toolcraft_config::load_settings;
 
-#[derive(Debug, Parser)]
-#[command(name = "agent-tools-server")]
-#[command(about = "HTTP service for agent-tools")]
+#[derive(Debug, Deserialize)]
 pub struct Settings {
-    #[arg(long, default_value = "0.0.0.0:18080")]
-    pub bind: String,
+    pub http: HttpConfig,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct HttpConfig {
+    pub port: u16,
+}
+
+impl Settings {
+    pub fn load(config_path: &str) -> Result<Self, toolcraft_config::error::Error> {
+        load_settings(config_path)
+    }
 }

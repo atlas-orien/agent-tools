@@ -10,5 +10,8 @@ pub use special::{
     codex,
     codex::{CodexOptions, CodexRequest, CodexTool, ColorMode, OssProvider, SandboxMode},
     web_search,
-    web_search::{WebSearchRequest, WebSearchTool, web_search, web_search_output},
+    web_search::{
+        WebSearchRequest, WebSearchTool, external_search_provider_output, web_search,
+        web_search_output,
+    },
 };

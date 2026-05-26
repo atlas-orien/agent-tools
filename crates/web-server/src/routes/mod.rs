@@ -11,6 +11,7 @@ pub fn create_routes(state: AppState) -> Router {
     Router::new()
         .route("/health", get(health))
         .nest("/tools", tools::routes())
+        .nest("/api/external", tools::external_search_routes())
         .layer(cors)
         .with_state(state)
 }

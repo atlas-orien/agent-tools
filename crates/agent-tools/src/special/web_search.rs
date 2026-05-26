@@ -46,6 +46,22 @@ pub fn web_search_output(query: impl Into<String>) -> Result<CmdOutput> {
     WebSearchTool::search(WebSearchRequest::new(query))
 }
 
+pub fn external_search_provider_output(
+    query: impl AsRef<str>,
+    topic: impl AsRef<str>,
+    days: u64,
+    max_results: u64,
+    bypass_cache: bool,
+) -> Result<CmdOutput> {
+    WebSearchTool::search(WebSearchRequest::new_provider(
+        query,
+        topic,
+        days,
+        max_results,
+        bypass_cache,
+    ))
+}
+
 impl WebSearchTool {
     pub fn search(req: WebSearchRequest) -> Result<CmdOutput> {
         let workdir = create_isolated_workdir()?;
@@ -62,6 +78,26 @@ impl WebSearchTool {
     }
 }
 
+impl WebSearchRequest {
+    pub fn new_provider(
+        query: impl AsRef<str>,
+        topic: impl AsRef<str>,
+        days: u64,
+        max_results: u64,
+        bypass_cache: bool,
+    ) -> Self {
+        let mut req = Self::new(build_external_search_provider_prompt(
+            query.as_ref(),
+            topic.as_ref(),
+            days,
+            max_results,
+            bypass_cache,
+        ));
+        req.timeout_ms = Some(180_000);
+        req
+    }
+}
+
 fn build_web_search_prompt(query: &str) -> String {
     format!(
         "Use live web search to answer the user's query.\n\nRequirements:\n- Search the web when \
@@ -73,6 +109,51 @@ fn build_web_search_prompt(query: &str) -> String {
          answer useful.\n- Do not read, inspect, create, edit, or delete local files.\n- Do not \
          run shell commands or use local tools unless they are strictly required for web \
          search.\n\nUser query:\n{query}"
+    )
+}
+
+fn build_external_search_provider_prompt(
+    query: &str,
+    topic: &str,
+    days: u64,
+    max_results: u64,
+    bypass_cache: bool,
+) -> String {
+    format!(
+        "Use live web search to collect traceable sources for an agent search provider.\n\n\
+         Return ONLY valid JSON. Do not wrap it in Markdown. Do not include commentary outside \
+         JSON.\n\n\
+         Required JSON shape:\n\
+         {{\n\
+           \"status\": \"live\",\n\
+           \"key\": \"search\",\n\
+           \"engine\": \"codex-web-search\",\n\
+           \"requested_at\": \"RFC3339 timestamp if known, otherwise omit\",\n\
+           \"confidence\": 0.0,\n\
+           \"data\": {{\n\
+             \"items\": [\n\
+               {{\n\
+                 \"title\": \"source title\",\n\
+                 \"snippet\": \"short factual source snippet or summary\",\n\
+                 \"url\": \"https://source-url.example/page\",\n\
+                 \"published_at\": \"RFC3339 or YYYY-MM-DD if available\"\n\
+               }}\n\
+             ]\n\
+           }}\n\
+         }}\n\n\
+         Rules:\n\
+         - Search the web and return up to {max_results} distinct traceable sources.\n\
+         - Every item MUST include a non-empty URL from a real source page.\n\
+         - Prefer official, primary, recent, and authoritative sources.\n\
+         - Prefer sources within the last {days} days when dates are available.\n\
+         - If a publication date is unavailable, omit published_at for that item.\n\
+         - Keep snippets concise and grounded in the source.\n\
+         - If no trustworthy sources are found, return status \"degraded\" and an empty \
+         data.items array.\n\
+         - Do not invent URLs, titles, dates, or snippets.\n\n\
+         Search topic: {topic}\n\
+         Bypass cache requested: {bypass_cache}\n\
+         Query: {query}"
     )
 }
 
@@ -126,6 +207,17 @@ mod tests {
         assert!(prompt.contains("Do not read, inspect, create, edit, or delete local files"));
         assert!(prompt.contains("Do not run shell commands"));
         assert!(prompt.contains("最新 Rust 版本是什么？"));
+    }
+
+    #[test]
+    fn test_provider_request_uses_structured_prompt() {
+        let req = WebSearchRequest::new_provider("latest rust", "news", 7, 3, true);
+
+        assert!(req.query.contains("Return ONLY valid JSON"));
+        assert!(req.query.contains("\"items\""));
+        assert!(req.query.contains("latest rust"));
+        assert_eq!(req.timeout_ms, Some(180_000));
+        assert!(req.codex_options.search);
     }
 
     #[test]
